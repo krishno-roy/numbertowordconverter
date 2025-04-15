@@ -90,7 +90,31 @@ const NumberToWordsTool = () => {
         ? (str != "" ? "and " : "") +
           (a[Number(n[4])] || b[n[4][0]] + " " + a[n[4][1]])
         : "";
+
     return str.trim();
+  };
+
+  // Handle decimal part (if any) and convert it to words
+  const convertDecimalToWords = (decimal) => {
+    const decimalWords = decimal
+      .split("")
+      .map((digit) => {
+        const numberWords = [
+          "zero",
+          "one",
+          "two",
+          "three",
+          "four",
+          "five",
+          "six",
+          "seven",
+          "eight",
+          "nine",
+        ];
+        return numberWords[digit];
+      })
+      .join(" ");
+    return decimalWords;
   };
 
   useEffect(() => {
@@ -105,18 +129,29 @@ const NumberToWordsTool = () => {
       return;
     }
 
+    // Handle decimal numbers
+    const [wholePart, decimalPart] = cleanInput.split(".");
+
+    // Convert whole part to words
+    const wholePartWords = convertToIndianWords(wholePart);
+    let finalWords = wholePartWords;
+
+    // If there's a decimal part, handle it separately
+    if (decimalPart) {
+      const decimalWords = convertDecimalToWords(decimalPart);
+      finalWords += " point " + decimalWords;
+    }
+
     // Format the number in Indian style with commas
     const formattedInput = formatIndianNumber(cleanInput);
     setNumberInput(formattedInput);
 
-    const num = parseInt(cleanInput);
-    const wordForm = convertToIndianWords(num);
-    const currencyForm = `${wordForm} ${currencyLabels[selectedCurrency]}`;
+    const currencyForm = `${finalWords} ${currencyLabels[selectedCurrency]}`;
 
-    setWords(wordForm);
+    setWords(finalWords);
     setCurrency(currencyForm);
-    setCharCount(wordForm.length);
-    setWordCount(wordForm.split(/\s+/).length);
+    setCharCount(finalWords.length);
+    setWordCount(finalWords.split(/\s+/).length);
   }, [selectedCurrency, numberInput]);
 
   const speakText = (text) => {
@@ -171,7 +206,7 @@ const NumberToWordsTool = () => {
         </div>
 
         {numberInput.trim() !== "" &&
-          !isNaN(numberInput.replace(/[^0-9]/g, "")) && (
+          !isNaN(numberInput.replace(/[^0-9.]/g, "")) && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -263,5 +298,4 @@ const NumberToWordsTool = () => {
     </section>
   );
 };
-
 export default NumberToWordsTool;
