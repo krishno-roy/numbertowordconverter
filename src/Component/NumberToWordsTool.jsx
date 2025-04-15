@@ -65,56 +65,56 @@ const NumberToWordsTool = () => {
       "ninety",
     ];
 
-    if ((num = num.toString()).length > 9) return "overflow";
-
-    let n = ("000000000" + num).substr(-9).match(/.{1,2}/g);
-    let str = "";
-    str +=
-      n[0] != 0
-        ? (a[Number(n[0])] || b[n[0][0]] + " " + a[n[0][1]]) + " crore "
-        : "";
-    str +=
-      n[1] != 0
-        ? (a[Number(n[1])] || b[n[1][0]] + " " + a[n[1][1]]) + " lakh "
-        : "";
-    str +=
-      n[2] != 0
-        ? (a[Number(n[2])] || b[n[2][0]] + " " + a[n[2][1]]) + " thousand "
-        : "";
-    str +=
-      n[3] != 0
-        ? (a[Number(n[3])] || b[n[3][0]] + " " + a[n[3][1]]) + " hundred "
-        : "";
-    str +=
-      n[4] != 0
-        ? (str != "" ? "and " : "") +
-          (a[Number(n[4])] || b[n[4][0]] + " " + a[n[4][1]])
-        : "";
-
-    return str.trim();
+    if (num < 20) return a[num]; // numbers 0-19
+    else if (num < 100)
+      return b[Math.floor(num / 10)] + (num % 10 ? " " + a[num % 10] : "");
+    else if (num < 1000)
+      return (
+        a[Math.floor(num / 100)] +
+        " hundred" +
+        (num % 100 ? " and " + convertToIndianWords(num % 100) : "")
+      );
+    else if (num < 100000)
+      return (
+        convertToIndianWords(Math.floor(num / 1000)) +
+        " thousand" +
+        (num % 1000 ? " " + convertToIndianWords(num % 1000) : "")
+      );
+    else if (num < 10000000)
+      return (
+        convertToIndianWords(Math.floor(num / 100000)) +
+        " lakh" +
+        (num % 100000 ? " " + convertToIndianWords(num % 100000) : "")
+      );
+    else
+      return (
+        convertToIndianWords(Math.floor(num / 10000000)) +
+        " crore" +
+        (num % 10000000 ? " " + convertToIndianWords(num % 10000000) : "")
+      );
   };
 
-  // Handle decimal part (if any) and convert it to words
+  // Convert decimal part into words
   const convertDecimalToWords = (decimal) => {
-    const decimalWords = decimal
-      .split("")
-      .map((digit) => {
-        const numberWords = [
-          "zero",
-          "one",
-          "two",
-          "three",
-          "four",
-          "five",
-          "six",
-          "seven",
-          "eight",
-          "nine",
-        ];
-        return numberWords[digit];
-      })
-      .join(" ");
-    return decimalWords;
+    const a = [
+      "",
+      "one",
+      "two",
+      "three",
+      "four",
+      "five",
+      "six",
+      "seven",
+      "eight",
+      "nine",
+    ];
+
+    let decimalWords = "";
+    for (let i = 0; i < decimal.length; i++) {
+      decimalWords += a[parseInt(decimal[i])] + " ";
+    }
+
+    return decimalWords.trim();
   };
 
   useEffect(() => {
@@ -129,29 +129,29 @@ const NumberToWordsTool = () => {
       return;
     }
 
-    // Handle decimal numbers
-    const [wholePart, decimalPart] = cleanInput.split(".");
-
-    // Convert whole part to words
-    const wholePartWords = convertToIndianWords(wholePart);
-    let finalWords = wholePartWords;
-
-    // If there's a decimal part, handle it separately
-    if (decimalPart) {
-      const decimalWords = convertDecimalToWords(decimalPart);
-      finalWords += " point " + decimalWords;
-    }
-
     // Format the number in Indian style with commas
     const formattedInput = formatIndianNumber(cleanInput);
     setNumberInput(formattedInput);
 
-    const currencyForm = `${finalWords} ${currencyLabels[selectedCurrency]}`;
+    // Split the number into whole and decimal parts
+    const [wholePart, decimalPart] = cleanInput.split(".");
 
-    setWords(finalWords);
-    setCurrency(currencyForm);
-    setCharCount(finalWords.length);
-    setWordCount(finalWords.split(/\s+/).length);
+    const wholeNum = parseInt(wholePart);
+    const wholeWords = convertToIndianWords(wholeNum);
+
+    let decimalWords = "";
+    if (decimalPart) {
+      decimalWords = convertDecimalToWords(decimalPart);
+      setCurrency(
+        `${wholeWords} point ${decimalWords} ${currencyLabels[selectedCurrency]}`
+      );
+    } else {
+      setCurrency(`${wholeWords} ${currencyLabels[selectedCurrency]}`);
+    }
+
+    setWords(wholeWords + (decimalWords ? " point " + decimalWords : ""));
+    setCharCount(words.length);
+    setWordCount(words.split(/\s+/).length);
   }, [selectedCurrency, numberInput]);
 
   const speakText = (text) => {
@@ -298,4 +298,5 @@ const NumberToWordsTool = () => {
     </section>
   );
 };
+
 export default NumberToWordsTool;
