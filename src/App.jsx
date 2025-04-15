@@ -1,12 +1,10 @@
 import React from 'react'
-import { Outlet } from 'react-router';
-import Navbar from './Component/home/Navbar';
+import Convertcase from './Component/Convertcase';
 
 const App = () => {
   return (
-    <div>
-      <Navbar/>
-      <Outlet />
+    <div className='bg-gray-300 min-h-screen'>
+      <Convertcase/>
     </div>
   );
 }
