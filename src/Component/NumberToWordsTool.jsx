@@ -5,6 +5,7 @@ import { FaPlay } from "react-icons/fa";
 
 const NumberToWordsTool = () => {
   const [numberInput, setNumberInput] = useState("");
+  const [rawNumber, setRawNumber] = useState("");
   const [words, setWords] = useState("");
   const [currency, setCurrency] = useState("");
   const [charCount, setCharCount] = useState(0);
@@ -16,11 +17,23 @@ const NumberToWordsTool = () => {
     eur: "euros",
     gbp: "pounds",
     inr: "rupees",
-    bdt: "Taka"
+    bdt: "Taka",
+  };
+
+  const formatWithCommas = (value) => {
+    const digitsOnly = value.replace(/[^\d]/g, "");
+    return digitsOnly ? Number(digitsOnly).toLocaleString("en-IN") : "";
+  };
+
+  const handleInputChange = (e) => {
+    const inputValue = e.target.value;
+    const cleaned = inputValue.replace(/[^\d]/g, ""); // keep only numbers
+    setRawNumber(cleaned);
+    setNumberInput(formatWithCommas(cleaned));
   };
 
   useEffect(() => {
-    if (numberInput.trim() === "" || isNaN(numberInput)) {
+    if (!rawNumber || isNaN(rawNumber)) {
       setWords("");
       setCurrency("");
       setCharCount(0);
@@ -28,7 +41,7 @@ const NumberToWordsTool = () => {
       return;
     }
 
-    const num = parseInt(numberInput);
+    const num = parseInt(rawNumber, 10);
     const wordForm = toWords(num);
     const currencyForm = `${wordForm} ${currencyLabels[selectedCurrency]}`;
 
@@ -36,7 +49,7 @@ const NumberToWordsTool = () => {
     setCurrency(currencyForm);
     setCharCount(wordForm.length);
     setWordCount(wordForm.trim().split(/\s+/).length);
-  }, [numberInput, selectedCurrency]);
+  }, [rawNumber, selectedCurrency]);
 
   const speakText = (text) => {
     const speech = new SpeechSynthesisUtterance(text);
@@ -56,6 +69,7 @@ const NumberToWordsTool = () => {
       transformed = words
         .toLowerCase()
         .replace(/\b\w/g, (char) => char.toUpperCase());
+
     setWords(transformed);
     setCurrency(`${transformed} ${currencyLabels[selectedCurrency]}`);
   };
@@ -68,11 +82,12 @@ const NumberToWordsTool = () => {
             Convert Number to Words and Currency
           </h2>
           <p className="text-white">
-            Type a number below to get the result in words and currency.
+            Type a number below (e.g. 100000 or 1,00,000) to get the result in
+            words and currency.
           </p>
         </div>
 
-        {/* Number Input - full width */}
+        {/* Number Input */}
         <div className="mb-6">
           <div className="bg-black text-white p-3 flex justify-between items-center">
             <p>Number</p>
@@ -82,21 +97,21 @@ const NumberToWordsTool = () => {
             </div>
           </div>
           <textarea
-            rows="4"
+            rows="2"
             value={numberInput}
-            onChange={(e) => setNumberInput(e.target.value)}
+            onChange={handleInputChange}
             className="bg-gray-200/25 text-white w-full p-4 focus:outline-none rounded"
-            placeholder="Enter number here..."
+            placeholder="Enter number like 100000 or 1,00,000..."
           ></textarea>
         </div>
 
-        {/* Show these only when input is given */}
-        {numberInput.trim() !== "" && !isNaN(numberInput) && (
+        {/* Output */}
+        {rawNumber.trim() !== "" && !isNaN(rawNumber) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Number in Word */}
+            {/* Number in Words */}
             <div>
               <div className="bg-black text-white p-3 flex justify-between items-center">
-                <p>Number in Word</p>
+                <p>Number in Words</p>
                 <div className="flex gap-3 text-xl cursor-pointer">
                   <FaPlay onClick={() => speakText(words)} />
                   <IoIosCopy onClick={() => copyText(words)} />
@@ -110,10 +125,10 @@ const NumberToWordsTool = () => {
               ></textarea>
             </div>
 
-            {/* Currency in Word */}
+            {/* Currency in Words */}
             <div>
               <div className="bg-black text-white p-3 flex justify-between items-center">
-                <p>Currency in Word</p>
+                <p>Currency in Words</p>
                 <div className="flex gap-3 text-xl cursor-pointer">
                   <FaPlay onClick={() => speakText(currency)} />
                   <IoIosCopy onClick={() => copyText(currency)} />
@@ -130,7 +145,7 @@ const NumberToWordsTool = () => {
         )}
 
         {/* Counts */}
-        {numberInput.trim() !== "" && !isNaN(numberInput) && (
+        {rawNumber.trim() !== "" && !isNaN(rawNumber) && (
           <div className="space-x-6 text-lg text-white mt-6">
             <span>
               <strong>Character Count:</strong> {charCount}
@@ -140,7 +155,8 @@ const NumberToWordsTool = () => {
             </span>
           </div>
         )}
-        {/* Controls - always visible */}
+
+        {/* Controls */}
         <div className="flex flex-wrap gap-4 items-center py-5 px-3 focus:outline-none">
           <select
             value={selectedCurrency}
@@ -155,7 +171,7 @@ const NumberToWordsTool = () => {
           </select>
 
           <button
-            className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+            className="text-white bg-gray-800 hover:bg-gray-900 font-medium rounded-lg text-sm px-5 py-2.5"
             onClick={() =>
               copyText(`Number in Words: ${words}\nCurrency: ${currency}`)
             }
@@ -163,19 +179,19 @@ const NumberToWordsTool = () => {
             Copy All
           </button>
           <button
-            className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+            className="text-white bg-gray-800 hover:bg-gray-900 font-medium rounded-lg text-sm px-5 py-2.5"
             onClick={() => handleTransform("uppercase")}
           >
             Uppercase
           </button>
           <button
-            className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+            className="text-white bg-gray-800 hover:bg-gray-900 font-medium rounded-lg text-sm px-5 py-2.5"
             onClick={() => handleTransform("lowercase")}
           >
             Lowercase
           </button>
           <button
-            className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+            className="text-white bg-gray-800 hover:bg-gray-900 font-medium rounded-lg text-sm px-5 py-2.5"
             onClick={() => handleTransform("capitalize")}
           >
             Capitalize
