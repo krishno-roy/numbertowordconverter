@@ -18,14 +18,34 @@ const NumberToWordsTool = () => {
     bdt: "taka",
   };
 
-  // Format number in Indian style (1,00,000)
-  const formatIndianNumber = (numStr) => {
-    let lastThree = numStr.slice(-3);
-    let otherNumbers = numStr.slice(0, -3);
-    if (otherNumbers !== "") {
-      lastThree = "," + lastThree;
+  // Format number with commas and handle decimal point
+  const formatNumberInput = (input) => {
+    // Remove all non-digit characters except decimal point
+    let cleanValue = input.replace(/[^0-9.]/g, "");
+
+    // Handle leading decimal point
+    if (cleanValue.startsWith(".")) {
+      cleanValue = "0" + cleanValue;
     }
-    return otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
+
+    // Remove extra decimal points
+    const parts = cleanValue.split(".");
+    if (parts.length > 2) {
+      cleanValue = parts[0] + "." + parts.slice(1).join("");
+    }
+
+    // Split into whole and decimal parts
+    const [wholePart, decimalPart] = cleanValue.split(".");
+
+    // Add commas to whole number part
+    let formattedWhole = wholePart;
+    if (wholePart) {
+      formattedWhole = wholePart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    return decimalPart !== undefined
+      ? `${formattedWhole}.${decimalPart}`
+      : formattedWhole;
   };
 
   // Convert number to Indian number system words
@@ -65,39 +85,39 @@ const NumberToWordsTool = () => {
       "ninety",
     ];
 
-    if (num < 20) return a[num]; // numbers 0-19
-    else if (num < 100)
+    if (num === 0) return "zero";
+    if (num < 20) return a[num];
+    if (num < 100)
       return b[Math.floor(num / 10)] + (num % 10 ? " " + a[num % 10] : "");
-    else if (num < 1000)
+    if (num < 1000)
       return (
         a[Math.floor(num / 100)] +
         " hundred" +
         (num % 100 ? " and " + convertToIndianWords(num % 100) : "")
       );
-    else if (num < 100000)
+    if (num < 100000)
       return (
         convertToIndianWords(Math.floor(num / 1000)) +
         " thousand" +
         (num % 1000 ? " " + convertToIndianWords(num % 1000) : "")
       );
-    else if (num < 10000000)
+    if (num < 10000000)
       return (
         convertToIndianWords(Math.floor(num / 100000)) +
         " lakh" +
         (num % 100000 ? " " + convertToIndianWords(num % 100000) : "")
       );
-    else
-      return (
-        convertToIndianWords(Math.floor(num / 10000000)) +
-        " crore" +
-        (num % 10000000 ? " " + convertToIndianWords(num % 10000000) : "")
-      );
+    return (
+      convertToIndianWords(Math.floor(num / 10000000)) +
+      " crore" +
+      (num % 10000000 ? " " + convertToIndianWords(num % 10000000) : "")
+    );
   };
 
   // Convert decimal part into words
   const convertDecimalToWords = (decimal) => {
     const a = [
-      "",
+      "zero",
       "one",
       "two",
       "three",
@@ -109,19 +129,24 @@ const NumberToWordsTool = () => {
       "nine",
     ];
 
-    let decimalWords = "";
-    for (let i = 0; i < decimal.length; i++) {
-      decimalWords += a[parseInt(decimal[i])] + " ";
-    }
+    return decimal
+      .split("")
+      .map((digit) => a[parseInt(digit)])
+      .join(" ");
+  };
 
-    return decimalWords.trim();
+  // Handle input change
+  const handleInputChange = (e) => {
+    const formattedValue = formatNumberInput(e.target.value);
+    setNumberInput(formattedValue);
   };
 
   useEffect(() => {
-    // Clean up the input, remove commas, and trim spaces
-    let cleanInput = numberInput.replace(/,/g, "").trim();
+    // Remove commas for processing
+    const cleanInput = numberInput.replace(/,/g, "");
 
-    if (!cleanInput || isNaN(cleanInput)) {
+    // Handle empty or invalid input
+    if (!cleanInput || cleanInput === "." || isNaN(cleanInput)) {
       setWords("");
       setCurrency("");
       setCharCount(0);
@@ -129,14 +154,10 @@ const NumberToWordsTool = () => {
       return;
     }
 
-    // Format the number in Indian style with commas
-    const formattedInput = formatIndianNumber(cleanInput);
-    setNumberInput(formattedInput);
-
-    // Split the number into whole and decimal parts
+    // Split into whole and decimal parts
     const [wholePart, decimalPart] = cleanInput.split(".");
 
-    const wholeNum = parseInt(wholePart);
+    const wholeNum = wholePart ? parseInt(wholePart) : 0;
     const wholeWords = convertToIndianWords(wholeNum);
 
     let decimalWords = "";
@@ -149,9 +170,13 @@ const NumberToWordsTool = () => {
       setCurrency(`${wholeWords} ${currencyLabels[selectedCurrency]}`);
     }
 
-    setWords(wholeWords + (decimalWords ? " point " + decimalWords : ""));
-    setCharCount(words.length);
-    setWordCount(words.split(/\s+/).length);
+    const fullWords =
+      wholeWords + (decimalWords ? " point " + decimalWords : "");
+    setWords(fullWords);
+    setCharCount(fullWords.length);
+    setWordCount(
+      fullWords.split(/\s+/).filter((word) => word.length > 0).length
+    );
   }, [selectedCurrency, numberInput]);
 
   const speakText = (text) => {
@@ -178,19 +203,17 @@ const NumberToWordsTool = () => {
   };
 
   return (
-    <section>
-      <div className="container mx-auto pt-5 px-4">
+    <section className="bg-gray-900 text-white min-h-screen">
+      <div className="container mx-auto py-8 px-4">
         <div className="py-4 space-y-4">
           <h2 className="text-2xl font-semibold bg-gradient-to-r from-pink-500 to-yellow-400 bg-clip-text text-transparent">
             Convert Number to Words and Currency
           </h2>
-          <p className="text-white">
-            Type a number below to get the result in words and currency.
-          </p>
+          <p>Type a number below to get the result in words and currency.</p>
         </div>
 
         <div className="mb-6">
-          <div className="bg-black text-white p-3 flex justify-between items-center">
+          <div className="bg-black p-3 flex justify-between items-center">
             <p>Number</p>
             <div className="flex gap-3 text-xl cursor-pointer">
               <FaPlay onClick={() => speakText(numberInput)} />
@@ -198,9 +221,10 @@ const NumberToWordsTool = () => {
             </div>
           </div>
           <input
+            type="text"
             value={numberInput}
-            onChange={(e) => setNumberInput(e.target.value)}
-            className="bg-gray-200/25 text-white w-full p-4 focus:outline-none rounded"
+            onChange={handleInputChange}
+            className="bg-gray-800 text-white w-full p-4 focus:outline-none rounded"
             placeholder="Enter number here..."
           />
         </div>
@@ -210,7 +234,7 @@ const NumberToWordsTool = () => {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <div className="bg-black text-white p-3 flex justify-between items-center">
+                  <div className="bg-black p-3 flex justify-between items-center">
                     <p>Number in Words</p>
                     <div className="flex gap-3 text-xl cursor-pointer">
                       <FaPlay onClick={() => speakText(words)} />
@@ -221,12 +245,12 @@ const NumberToWordsTool = () => {
                     rows="4"
                     value={words}
                     readOnly
-                    className="bg-gray-200/25 text-white w-full p-4 focus:outline-none rounded"
+                    className="bg-gray-800 text-white w-full p-4 focus:outline-none rounded"
                   ></textarea>
                 </div>
 
                 <div>
-                  <div className="bg-black text-white p-3 flex justify-between items-center">
+                  <div className="bg-black p-3 flex justify-between items-center">
                     <p>Currency in Words</p>
                     <div className="flex gap-3 text-xl cursor-pointer">
                       <FaPlay onClick={() => speakText(currency)} />
@@ -237,12 +261,12 @@ const NumberToWordsTool = () => {
                     rows="4"
                     value={currency}
                     readOnly
-                    className="bg-gray-200/25 text-white w-full p-4 focus:outline-none rounded"
+                    className="bg-gray-800 text-white w-full p-4 focus:outline-none rounded"
                   ></textarea>
                 </div>
               </div>
 
-              <div className="space-x-6 text-lg text-white mt-6">
+              <div className="space-x-6 text-lg mt-6">
                 <span>
                   <strong>Character Count:</strong> {charCount}
                 </span>
@@ -253,7 +277,7 @@ const NumberToWordsTool = () => {
             </>
           )}
 
-        <div className="flex flex-wrap gap-4 items-center py-5 px-3">
+        <div className="flex flex-wrap gap-4 items-center py-5">
           <select
             value={selectedCurrency}
             onChange={(e) => setSelectedCurrency(e.target.value)}
@@ -267,7 +291,7 @@ const NumberToWordsTool = () => {
           </select>
 
           <button
-            className="text-white bg-gray-800 hover:bg-gray-900 font-medium rounded-lg text-sm px-5 py-2.5"
+            className="bg-gray-800 hover:bg-gray-700 font-medium rounded-lg px-5 py-2.5"
             onClick={() =>
               copyText(`Number in Words: ${words}\nCurrency: ${currency}`)
             }
@@ -276,19 +300,19 @@ const NumberToWordsTool = () => {
           </button>
 
           <button
-            className="text-white bg-gray-800 hover:bg-gray-900 font-medium rounded-lg text-sm px-5 py-2.5"
+            className="bg-gray-800 hover:bg-gray-700 font-medium rounded-lg px-5 py-2.5"
             onClick={() => handleTransform("uppercase")}
           >
             Uppercase
           </button>
           <button
-            className="text-white bg-gray-800 hover:bg-gray-900 font-medium rounded-lg text-sm px-5 py-2.5"
+            className="bg-gray-800 hover:bg-gray-700 font-medium rounded-lg px-5 py-2.5"
             onClick={() => handleTransform("lowercase")}
           >
             Lowercase
           </button>
           <button
-            className="text-white bg-gray-800 hover:bg-gray-900 font-medium rounded-lg text-sm px-5 py-2.5"
+            className="bg-gray-800 hover:bg-gray-700 font-medium rounded-lg px-5 py-2.5"
             onClick={() => handleTransform("capitalize")}
           >
             Capitalize
