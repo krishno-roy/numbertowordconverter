@@ -51,7 +51,7 @@ const Convertcase = () => {
 
   return (
     <section>
-      <div className="container mx-auto pt-20 px-4">
+      <div className="container mx-auto pt-5 px-4">
         <div className="py-4 space-y-4">
           <h2 className="text-2xl font-semibold">
             Accidentally left the caps lock on and typed something, but can't be
@@ -68,42 +68,42 @@ const Convertcase = () => {
           rows="10"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          className="bg-gray-100 border-2 border-black w-full p-4"
+          className="bg-gray-200 border-black w-full p-4 focus:outline-none rounded"
           placeholder="Enter your text here..."
         ></textarea>
         <div className="flex flex-wrap gap-4 py-5">
           <button
-            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white"
+            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white rounded transition duration-300 transform hover:scale-105"
             onClick={handleSentenceCase}
           >
             Sentence case
           </button>
           <button
-            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white"
+            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white rounded transition duration-300 transform hover:scale-105"
             onClick={handleLowerCase}
           >
             lower case
           </button>
           <button
-            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white"
+            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white rounded transition duration-300 transform hover:scale-105"
             onClick={handleUpperCase}
           >
             UPPER CASE
           </button>
           <button
-            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white"
+            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white rounded transition duration-300 transform hover:scale-105"
             onClick={handleCapitalizedCase}
           >
             Capitalized Case
           </button>
           <button
-            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white"
+            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white rounded transition duration-300 transform hover:scale-105"
             onClick={handleCopy}
           >
             Copy to Clipboard
           </button>
           <button
-            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white"
+            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white rounded transition duration-300 transform hover:scale-105"
             onClick={handleClear}
           >
             Clear
