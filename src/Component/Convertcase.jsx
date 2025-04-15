@@ -53,11 +53,11 @@ const Convertcase = () => {
     <section>
       <div className="container mx-auto pt-5 px-4">
         <div className="py-4 space-y-4">
-          <h2 className="text-2xl font-semibold">
+          <h2 className="text-2xl font-semibold text-white">
             Accidentally left the caps lock on and typed something, but can't be
             bothered to start again and retype it all?
           </h2>
-          <p>
+          <p className="text-white">
             Simply enter your text and choose the case you want to convert it
             to.
           </p>
@@ -68,58 +68,59 @@ const Convertcase = () => {
           rows="10"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          className="bg-gray-200 border-black w-full p-4 focus:outline-none rounded"
+          className="bg-gray-200/25 text-white border-black w-full p-4 focus:outline-none rounded"
           placeholder="Enter your text here..."
         ></textarea>
         <div className="flex flex-wrap gap-4 py-5">
           <button
-            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white rounded transition duration-300 transform hover:scale-105"
+            className="py-2 px-6 bg-gradient-to-r from-pink-500 to-yellow-400 text-white hover:brightness-110 rounded transition duration-300 transform hover:scale-105"
             onClick={handleSentenceCase}
           >
             Sentence case
           </button>
           <button
-            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white rounded transition duration-300 transform hover:scale-105"
+            className="py-2 px-6 bg-gradient-to-r from-pink-500 to-yellow-400 text-white hover:brightness-110 rounded transition duration-300 transform hover:scale-105"
             onClick={handleLowerCase}
           >
             lower case
           </button>
           <button
-            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white rounded transition duration-300 transform hover:scale-105"
+            className="py-2 px-6 bg-gradient-to-r from-pink-500 to-yellow-400 text-white hover:brightness-110 rounded transition duration-300 transform hover:scale-105"
             onClick={handleUpperCase}
           >
             UPPER CASE
           </button>
           <button
-            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white rounded transition duration-300 transform hover:scale-105"
+            className="py-2 px-6 bg-gradient-to-r from-pink-500 to-yellow-400 text-white hover:brightness-110 rounded transition duration-300 transform hover:scale-105"
             onClick={handleCapitalizedCase}
           >
             Capitalized Case
           </button>
           <button
-            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white rounded transition duration-300 transform hover:scale-105"
+            className="py-2 px-6 bg-gradient-to-r from-pink-500 to-yellow-400 text-white hover:brightness-110 rounded transition duration-300 transform hover:scale-105"
             onClick={handleCopy}
           >
             Copy to Clipboard
           </button>
           <button
-            className="py-2 px-6 bg-gray-200 hover:bg-black hover:text-white rounded transition duration-300 transform hover:scale-105"
+            className="py-2 px-6 bg-gradient-to-r from-pink-500 to-yellow-400 text-white hover:brightness-110 rounded transition duration-300 transform hover:scale-105"
             onClick={handleClear}
           >
             Clear
           </button>
         </div>
+
         <div className="space-x-6 text-lg">
-          <span>
+          <span className="text-white">
             <strong>Character Count:</strong> {charCount}
           </span>
-          <span>
+          <span className="text-white">
             <strong>Word Count:</strong> {wordCount}
           </span>
-          <span>
+          <span className="text-white">
             <strong>Sentence Count:</strong> {sentenceCount}
           </span>
-          <span>
+          <span className="text-white">
             <strong>Line Count:</strong> {lineCount}
           </span>
         </div>
