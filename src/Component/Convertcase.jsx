@@ -53,7 +53,7 @@ const Convertcase = () => {
     <section>
       <div className="container mx-auto pt-5 px-4">
         <div className="py-4 space-y-4">
-          <h2 className="text-2xl font-semibold text-white">
+          <h2 className="text-2xl font-semibold bg-gradient-to-r from-pink-500 to-yellow-400 bg-clip-text text-transparent">
             Accidentally left the caps lock on and typed something, but can't be
             bothered to start again and retype it all?
           </h2>
