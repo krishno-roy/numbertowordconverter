@@ -18,37 +18,25 @@ const NumberToWordsTool = () => {
     bdt: "taka",
   };
 
-  // Format number with commas and handle decimal point
   const formatNumberInput = (input) => {
-    // Remove all non-digit characters except decimal point
     let cleanValue = input.replace(/[^0-9.]/g, "");
-
-    // Handle leading decimal point
     if (cleanValue.startsWith(".")) {
       cleanValue = "0" + cleanValue;
     }
-
-    // Remove extra decimal points
     const parts = cleanValue.split(".");
     if (parts.length > 2) {
       cleanValue = parts[0] + "." + parts.slice(1).join("");
     }
-
-    // Split into whole and decimal parts
     const [wholePart, decimalPart] = cleanValue.split(".");
-
-    // Add commas to whole number part
     let formattedWhole = wholePart;
     if (wholePart) {
       formattedWhole = wholePart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
-
     return decimalPart !== undefined
       ? `${formattedWhole}.${decimalPart}`
       : formattedWhole;
   };
 
-  // Convert number to Indian number system words
   const convertToIndianWords = (num) => {
     const a = [
       "",
@@ -114,7 +102,6 @@ const NumberToWordsTool = () => {
     );
   };
 
-  // Convert decimal part into words
   const convertDecimalToWords = (decimal) => {
     const a = [
       "zero",
@@ -128,24 +115,19 @@ const NumberToWordsTool = () => {
       "eight",
       "nine",
     ];
-
     return decimal
       .split("")
       .map((digit) => a[parseInt(digit)])
       .join(" ");
   };
 
-  // Handle input change
   const handleInputChange = (e) => {
     const formattedValue = formatNumberInput(e.target.value);
     setNumberInput(formattedValue);
   };
 
   useEffect(() => {
-    // Remove commas for processing
     const cleanInput = numberInput.replace(/,/g, "");
-
-    // Handle empty or invalid input
     if (!cleanInput || cleanInput === "." || isNaN(cleanInput)) {
       setWords("");
       setCurrency("");
@@ -154,9 +136,7 @@ const NumberToWordsTool = () => {
       return;
     }
 
-    // Split into whole and decimal parts
     const [wholePart, decimalPart] = cleanInput.split(".");
-
     const wholeNum = wholePart ? parseInt(wholePart) : 0;
     const wholeWords = convertToIndianWords(wholeNum);
 
@@ -164,14 +144,14 @@ const NumberToWordsTool = () => {
     if (decimalPart) {
       decimalWords = convertDecimalToWords(decimalPart);
       setCurrency(
-        `${wholeWords} point ${decimalWords} ${currencyLabels[selectedCurrency]}`
+        `${wholeWords} and ${decimalWords} poisa ${currencyLabels[selectedCurrency]}`
       );
     } else {
       setCurrency(`${wholeWords} ${currencyLabels[selectedCurrency]}`);
     }
 
     const fullWords =
-      wholeWords + (decimalWords ? " point " + decimalWords : "");
+      wholeWords + (decimalWords ? " and " + decimalWords + " poisa" : "");
     setWords(fullWords);
     setCharCount(fullWords.length);
     setWordCount(
